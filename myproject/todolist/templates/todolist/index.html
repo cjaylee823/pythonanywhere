@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>간단한 할 일 목록</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .btn-warning {
+            color: white;
+        }
+        #todo-list {
+            max-width: 800px;
+            margin: auto;
+        }
+        .list-group-item {
+            background-color: #f8f9fa;
+        }
+        .list-group-item.completed {
+            background-color: #d4edda;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">할 일 목록</h2>
+        <!-- 할 일 추가 폼 -->
+        <form class="form-inline mb-4">
+            <input id="todo-val" type="text" class="form-control mr-2 w-50" placeholder="새 할 일을 입력해주세요">
+            <button type="button" class="btn btn-primary" onclick="makeTodo()">추가</button>
+        </form>
+        
+        <!-- 할 일 목록 -->
+        <ul id="todo-list" class="list-group">
+            <!-- 사용자가 추가할 할 일들이 여기에 표시됩니다 -->
+        </ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // 할 일 추가 함수
+        function makeTodo() {
+            const todoValue = $('#todo-val').val(); // 입력 필드에서 값 가져오기
+            if (todoValue) {
+                const newTodo = `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="todo-text">${todoValue}</span>
+                        <span>
+                            <button class="btn btn-success btn-sm mr-1" onclick="completeTodo(this)">완료</button>
+                            <button class="btn btn-secondary btn-sm mr-1" onclick="editTodo(this)">수정</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTodo(this)">삭제</button>
+                        </span>
+                    </li>`;
+                $('#todo-list').append(newTodo); // 새로운 할 일 목록에 추가
+                $('#todo-val').val(''); // 입력 필드 비우기
+                
+                // 등록 완료 알림창 띄우기
+                alert('등록 완료!');
+            } else {
+                alert('할 일을 입력해주세요!');
+            }
+        }
+
+        // 할 일 완료 함수
+        function completeTodo(element) {
+            // 할 일 항목에 'completed' 클래스를 추가하여 스타일 변경
+            const listItem = $(element).closest('li');
+            listItem.addClass('completed');
+
+            const todoText = listItem.find('.todo-text');
+            if (todoText.find('del').length === 0) {
+                todoText.wrapInner('<del></del>');
+            }
+
+            // '완료' 버튼과 '수정' 버튼을 숨김
+            listItem.find('.btn-success, .btn-secondary').hide();
+
+            // '삭제' 버튼의 위치를 조정하여, 다른 버튼들이 사라진 후에도 원래 위치에 있도록 함
+            listItem.find('.btn-danger').parent().addClass('d-flex justify-content-end');
+        }
+
+
+        // 할 일 삭제 함수
+        function deleteTodo(element) {
+            $(element).closest('li').remove();
+            alert('삭제 완료!');
+        }
+
+        // 할 일 수정 함수
+        function editTodo(element) {
+            const currentText = $(element).closest('li').find('.todo-text').text().trim();
+            const editHtml = `
+                <form class="form-inline w-75">
+                    <input type="text" class="form-control mr-2 w-75" value="${currentText}">
+                    <button type="button" class="btn btn-secondary btn-sm mr-1" onclick="updateTodo(this)">업데이트</button>
+                    <button type="button" class="btn btn-warning btn-sm" onclick="cancelEdit(this)">취소</button>
+                </form>`;
+            $(element).closest('li').html(editHtml);
+        }
+
+        // 할 일 업데이트 함수
+        function updateTodo(element) {
+            const updatedValue = $(element).closest('form').find('input').val();
+            const todoHtml = `
+                ${updatedValue}
+                <span>
+                    <button class="btn btn-success btn-sm mr-1" onclick="completeTodo(this)">완료</button>
+                    <button class="btn btn-secondary btn-sm mr-1" onclick="editTodo(this)">수정</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteTodo(this)">삭제</button>
+                </span>`;
+            $(element).closest('li').html(todoHtml);
+            alert('업데이트 완료!');
+        }
+
+        // 할 일 수정 취소 함수
+        function cancelEdit(element) {
+            const originalValue = $(element).closest('li').find('del').text() || $(element).closest('li').find('input').val();
+            const todoHtml = `
+                ${originalValue}
+                <span>
+                    <button class="btn btn-success btn-sm mr-1" onclick="completeTodo(this)">완료</button>
+                    <button class="btn btn-secondary btn-sm mr-1" onclick="editTodo(this)">수정</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteTodo(this)">삭제</button>
+                </span>`;
+            $(element).closest('li').html(todoHtml);
+        }
+    </script>
+</body>
+</html>
